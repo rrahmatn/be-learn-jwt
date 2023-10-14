@@ -19,7 +19,7 @@ app.get("/users", (req, res) => {
     }
   });
 });
-
+//cek nim
 app.post("/ceknim", (req, res) => {
   const nim = req.body.nim;
   const checkNimQuery = `SELECT * FROM users WHERE nim = ${nim}`;
@@ -36,28 +36,27 @@ app.post("/ceknim", (req, res) => {
     }
   });
 });
-
-// midleware ketersediaan nim dan email
-const check = (req, res, next) => {
-  const { email } = req.body;
-  const checkEmailQuery = `SELECT * FROM users WHERE email = '${email}'`;
-  // check nim
-
-  db.query(checkEmailQuery, (error, results) => {
+app.post("/cekemail", (req, res) => {
+  const email = req.body.email;
+  const checkNimQuery = `SELECT * FROM users WHERE email = '${email}'`;
+  db.query(checkNimQuery, (error, result) => {
     if (error) {
       console.error(error);
-      res.status(500).send("Internal Server Error");
-    } else if (results.length > 0) {
-      console.log("Email sudah digunakan");
-      res.status(400).send("Email sudah digunakan");
+      res.status(500).send("internal server error");
+    } else if (result.length > 0) {
+      console.log("Email suddah terdaftar");
+      response(400, result , "Email telah terdaftar", res);
     } else {
-      next();
+      console.log("Email dapat digunakan")
+      response(200, result , "✔", res);
     }
   });
-};
+});
+
+
 
 //register
-app.post("/users", check, async (req, res) => {
+app.post("/users", async (req, res) => {
   const { nim, name, password, confirmPassword, email } = req.body;
   console.log(req.body);
   const hashedPassword = bcrypt.hashSync(password, 10);
